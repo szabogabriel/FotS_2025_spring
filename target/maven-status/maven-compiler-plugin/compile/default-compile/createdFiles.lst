@@ -1,0 +1,5 @@
+com/ibm/sk/fots/spring/controller/HelloController.class
+com/ibm/sk/fots/spring/Application.class
+com/ibm/sk/fots/spring/service/LoggingService.class
+com/ibm/sk/fots/spring/entity/LogEntriesEntity.class
+com/ibm/sk/fots/spring/repository/LogEntriesRepository.class

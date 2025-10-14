@@ -1,0 +1,5 @@
+/home/student04/spring/src/main/java/com/ibm/sk/fots/spring/Application.java
+/home/student04/spring/src/main/java/com/ibm/sk/fots/spring/controller/HelloController.java
+/home/student04/spring/src/main/java/com/ibm/sk/fots/spring/entity/LogEntriesEntity.java
+/home/student04/spring/src/main/java/com/ibm/sk/fots/spring/repository/LogEntriesRepository.java
+/home/student04/spring/src/main/java/com/ibm/sk/fots/spring/service/LoggingService.java
