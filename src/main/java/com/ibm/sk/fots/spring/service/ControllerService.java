@@ -61,11 +61,7 @@ public class ControllerService {
 
   public Tag findTagById(Long id) {
     Optional<Tag> storedTag = storedTags.stream().filter(t -> t.getTagId().equals(id)).findFirst();
-    if (storedTag.isPresent()) {
-      return storedTag.get();
-    } else {
-      throw new EntityNotFoundException();
-    }
+    return storedTag.orElse(null);
   }
 
   public Tag createTag(String tagName) {

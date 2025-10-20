@@ -20,10 +20,8 @@ public class TaskController {
 
   @GetMapping("/{id}")
   public Task find(@PathVariable Long id) {
-    Task ret = null;
-    try {
-      ret = service.find(id);
-    } catch (Exception e) {
+    Task ret = service.find(id);
+    if (ret == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     return ret;
