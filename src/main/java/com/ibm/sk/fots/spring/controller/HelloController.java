@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ibm.sk.fots.spring.entity.LogEntryEntity;
 import com.ibm.sk.fots.spring.repository.LogEntryRepository;
 
-@RestController
+//@RestController
 public class HelloController {
 
     @Autowired

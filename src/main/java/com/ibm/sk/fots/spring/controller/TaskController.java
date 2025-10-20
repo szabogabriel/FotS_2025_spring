@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+@RestController
 @RequestMapping(path = "/api/v1/tasks", produces = "application/json")
 public class TaskController {
 
