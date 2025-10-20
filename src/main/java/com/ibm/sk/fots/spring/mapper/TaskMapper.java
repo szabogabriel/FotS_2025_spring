@@ -19,6 +19,12 @@ public class TaskMapper {
     task.setTitle(dto.getTitle());
     task.setDescription(dto.getDescription());
     task.setCompleted(dto.isCompleted());
+    task.setDueDate(toLocalDateTime(dto.getDueDate()));
+    if (dto.getPriority() != null) {
+      task.setPriority(PriorityEnum.fromString(dto.getPriority()));
+    } else {
+      task.setPriority(PriorityEnum.MEDIUM);
+    }
 
     return task;
   }

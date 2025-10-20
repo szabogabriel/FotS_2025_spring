@@ -20,6 +20,22 @@ public class ControllerService {
   public Task add(TaskCreate createDto) {
     Task createdTask = TaskMapper.toNew(createDto);
 
+    if (createDto.getTags() != null) {
+      List<String> tags = createDto.getTags();
+
+      List<String> tmpTagName = new ArrayList<>();
+      for (String tag : tags) {
+        Optional<Tag> existing = findTagByName(tag);
+        if (existing.isEmpty()) {
+          tmpTagName.add(createTag(tag).getName());
+        } else {
+          tmpTagName.add(existing.get().getName());
+        }
+      }
+      createdTask.setTags(tmpTagName);
+    }
+
+
     OptionalLong lastId = storedTasks.stream().mapToLong(Task::getTaskId).max();
     createdTask.setTaskId(lastId.orElse(0) + 1);
 
@@ -62,6 +78,10 @@ public class ControllerService {
   public Tag findTagById(Long id) {
     Optional<Tag> storedTag = storedTags.stream().filter(t -> t.getTagId().equals(id)).findFirst();
     return storedTag.orElse(null);
+  }
+
+  private Optional<Tag> findTagByName(String tagName) {
+    return storedTags.stream().filter(t -> t.getName().equals(tagName)).findFirst();
   }
 
   public Tag createTag(String tagName) {
