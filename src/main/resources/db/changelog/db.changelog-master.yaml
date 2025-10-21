@@ -1,0 +1,96 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1-create-tables
+      author: Testing
+      changes:
+        - createTable:
+            tableName: tag
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: tag_id
+                  type: BIGINT
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: task
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: BIGINT
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(1024)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: completed
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: due_date
+                  type: DATETIME
+              - column:
+                  name: priority
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owner
+                  type: BIGINT
+        - createTable:
+            tableName: task_tag
+            columns:
+              - column:
+                  name: task_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tag_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: task_tag
+            columnNames: task_id, tag_id
+            constraintName: pk_task_tag
+        - addForeignKeyConstraint:
+            baseTableName: task_tag
+            baseColumnNames: task_id
+            referencedTableName: task_entity
+            referencedColumnNames: id
+            constraintName: fk_task_tag_task
+        - addForeignKeyConstraint:
+            baseTableName: task_tag
+            baseColumnNames: tag_id
+            referencedTableName: tag_entity
+            referencedColumnNames: id
+            constraintName: fk_task_tag_tag

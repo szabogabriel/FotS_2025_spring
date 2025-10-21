@@ -1,13 +1,22 @@
 package com.ibm.sk.fots.spring.entity;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "TAG")
 public class TagEntity {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(unique = true)
   private Long tagId;
 
+  @Column(unique = true)
   private String name;
 
+  @Column
   private boolean active;
 
   public TagEntity() {
