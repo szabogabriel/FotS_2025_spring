@@ -3,6 +3,8 @@ package com.ibm.sk.fots.spring.controller;
 import com.ibm.sk.fots.spring.dto.Tag;
 import com.ibm.sk.fots.spring.dto.Task;
 import com.ibm.sk.fots.spring.service.ControllerService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,31 +21,16 @@ public class TagController {
 
   @GetMapping("/{id}")
   public Tag get(@PathVariable Long id) {
-    Tag ret = service.findTagById(id);
-    if (ret == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-    return ret;
+    return service.findTagById(id);
   }
 
   @PostMapping
-  public ResponseEntity<Tag> add(@RequestBody @NotNull String tag) {
-    Tag createdTag;
-    try {
-      createdTag = service.createTag(tag);
-    } catch (Exception e) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT);
-    }
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdTag);
+  public Tag add(@Valid @RequestBody @NotNull @Size(min = 5) String tag) {
+    return service.createTag(tag);
   }
 
   @DeleteMapping("/{id}")
   public Tag delete(@PathVariable Long id) {
-    try {
-      return service.deleteTag(id);
-    } catch (Exception e) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
+    return service.deleteTag(id);
   }
 }

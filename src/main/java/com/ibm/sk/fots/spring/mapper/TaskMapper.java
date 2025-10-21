@@ -4,52 +4,84 @@ import com.ibm.sk.fots.spring.dto.PriorityEnum;
 import com.ibm.sk.fots.spring.dto.Task;
 import com.ibm.sk.fots.spring.dto.TaskCreate;
 import com.ibm.sk.fots.spring.dto.TaskUpdate;
+import com.ibm.sk.fots.spring.entity.TaskEntity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TaskMapper {
 
-  public static Task toNew(TaskCreate dto) {
+  public static Task toDto(TaskEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
+    Task dto = new Task();
+    dto.setTaskId(entity.getTaskId());
+    dto.setTitle(entity.getTitle());
+    dto.setDescription(entity.getDescription());
+    dto.setCompleted(entity.isCompleted());
+    dto.setDueDate(entity.getDueDate());
+    dto.setPriority(PriorityEnum.fromInteger(entity.getPriority()));
+    dto.setTags(TagMapper.toDtoStringList(entity.getTags()));
+    return dto;
+  }
+
+  public static List<Task> toDtoList(List<TaskEntity> entities) {
+    if (entities == null) {
+      return null;
+    }
+
+    List<Task> dtos = new ArrayList<>();
+    for (TaskEntity entity : entities) {
+      dtos.add(toDto(entity));
+    }
+    return dtos;
+  }
+
+  public static TaskEntity toNewEntity(TaskCreate dto) {
     if (dto == null) {
       return null;
     }
 
-    Task task = new Task();
-    task.setTitle(dto.getTitle());
-    task.setDescription(dto.getDescription());
-    task.setCompleted(dto.isCompleted());
-    task.setDueDate(toLocalDateTime(dto.getDueDate()));
-    if (dto.getPriority() != null) {
-      task.setPriority(PriorityEnum.fromString(dto.getPriority()));
+    TaskEntity entity = new TaskEntity();
+    entity.setTitle(dto.getTitle());
+    entity.setDescription(dto.getDescription());
+    entity.setCompleted(dto.isCompleted());
+    entity.setDueDate(toLocalDateTime(dto.getDueDate()));
+
+    if (dto.getPriority() != null && PriorityEnum.fromString(dto.getPriority()) != null) {
+      entity.setPriority(PriorityEnum.fromString(dto.getPriority()).toInteger());
     } else {
-      task.setPriority(PriorityEnum.MEDIUM);
+      entity.setPriority(PriorityEnum.MEDIUM.toInteger());
     }
 
-    return task;
+    return entity;
   }
 
-  public static Task update(Task storedTask, TaskUpdate update) {
-    if (storedTask == null || update == null) {
-      return storedTask;
+  public static TaskEntity updateEntity(TaskEntity entity, TaskUpdate update) {
+    if (entity == null || update == null) {
+      return entity;
     }
 
     if (update.getTitle() != null) {
-      storedTask.setTitle(update.getTitle());
+      entity.setTitle(update.getTitle());
     }
     if (update.getDescription() != null) {
-      storedTask.setDescription(update.getDescription());
+      entity.setDescription(update.getDescription());
     }
-    storedTask.setCompleted(update.isCompleted());
+    entity.setCompleted(update.isCompleted());
     if (update.getDueDate() != null) {
-      storedTask.setDueDate(toLocalDateTime(update.getDueDate()));
+      entity.setDueDate(toLocalDateTime(update.getDueDate()));
     }
-    if (update.getPriority() != null) {
-      storedTask.setPriority(PriorityEnum.fromString(update.getPriority()));
+    if (update.getPriority() != null && PriorityEnum.fromString(update.getPriority()) != null) {
+      entity.setPriority(PriorityEnum.fromString(update.getPriority()).toInteger());
     }
     // Tags are not updated here
 
-    return storedTask;
+    return entity;
   }
 
   private static LocalDateTime toLocalDateTime(String date) {
@@ -58,5 +90,4 @@ public class TaskMapper {
     }
     return LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME);
   }
-
 }

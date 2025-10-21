@@ -4,106 +4,149 @@ import com.ibm.sk.fots.spring.dto.Tag;
 import com.ibm.sk.fots.spring.dto.Task;
 import com.ibm.sk.fots.spring.dto.TaskCreate;
 import com.ibm.sk.fots.spring.dto.TaskUpdate;
+import com.ibm.sk.fots.spring.entity.TagEntity;
+import com.ibm.sk.fots.spring.entity.TaskEntity;
 import com.ibm.sk.fots.spring.mapper.TagMapper;
 import com.ibm.sk.fots.spring.mapper.TaskMapper;
+import com.ibm.sk.fots.spring.repository.TagRepository;
+import com.ibm.sk.fots.spring.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class ControllerService {
 
-  private List<Task> storedTasks = new ArrayList<>();
-  private List<Tag> storedTags = new ArrayList<>();
+  @Autowired
+  private TagRepository tagRepo;
 
-  public Task add(TaskCreate createDto) {
-    Task createdTask = TaskMapper.toNew(createDto);
+  @Autowired
+  private TaskRepository taskRepo;
 
-    if (createDto.getTags() != null) {
-      List<String> tags = createDto.getTags();
+  public Task findTask(Long id) {
+    Optional<TaskEntity> task = taskRepo.findByTaskId(id);
+    if (task.isPresent()) {
+      return TaskMapper.toDto(task.get());
+    } else {
+      throw new EntityNotFoundException();
+    }
+  }
 
-      List<String> tmpTagName = new ArrayList<>();
-      for (String tag : tags) {
-        Optional<Tag> existing = findTagByName(tag);
-        if (existing.isEmpty()) {
-          tmpTagName.add(createTag(tag).getName());
-        } else {
-          tmpTagName.add(existing.get().getName());
-        }
-      }
-      createdTask.setTags(tmpTagName);
+  public List<Task> findFiltered(Boolean done, LocalDate dueBefore) {
+    if (done != null && dueBefore != null) {
+      return TaskMapper.toDtoList(taskRepo.findByCompletedAndDueDateBefore(done, dueBefore));
+    } else if (done != null) {
+      return TaskMapper.toDtoList(taskRepo.findByCompleted(done));
+    } else if (dueBefore != null) {
+      return TaskMapper.toDtoList(taskRepo.findByDueDateBefore(dueBefore));
     }
 
-
-    OptionalLong lastId = storedTasks.stream().mapToLong(Task::getTaskId).max();
-    createdTask.setTaskId(lastId.orElse(0) + 1);
-
-    storedTasks.add(createdTask);
-
-    return createdTask;
+    return new ArrayList<>();
   }
 
-  public Task find(Long id) {
-    Optional<Task> foundTask = storedTasks.stream().filter(t -> t.getTaskId().equals(id)).findFirst();
+  public Task add(TaskCreate todo) {
+    TaskEntity entity = TaskMapper.toNewEntity(todo);
+    if (todo.getTags() != null) {
+      List<String> tags = todo.getTags();
 
-    return foundTask.orElse(null);
+      List<TagEntity> tagEntities = new ArrayList<>();
+      for (String tag : tags) {
+        Optional<TagEntity> existing = tagRepo.findByName(tag);
+        if (existing.isEmpty()) {
+          TagEntity tmpTag = TagMapper.toNewEntity(tag);
+          tmpTag = tagRepo.save(tmpTag);
+          tmpTag.setTagId(tmpTag.getId());
+          tagRepo.save(tmpTag);
+          tagEntities.add(tmpTag);
+        } else {
+          tagEntities.add(existing.get());
+        }
+      }
+      entity.setTags(tagEntities);
+    }
+
+    entity = taskRepo.save(entity);
+    entity.setTaskId(entity.getId());
+    entity = taskRepo.save(entity);
+
+    Task ret = TaskMapper.toDto(entity);
+    return ret;
   }
 
-  public Task update(Long id, TaskUpdate updateDto) {
-    Optional<Task> foundTask = storedTasks.stream().filter(t -> t.getTaskId().equals(id)).findFirst();
+  public Task update(Long id, TaskUpdate todo) {
+    Optional<TaskEntity> taskToUpdate = taskRepo.findByTaskId(id);
 
-    if (!foundTask.isPresent()) {
+    if (taskToUpdate.isEmpty()) {
       throw new IllegalArgumentException();
     }
 
-    Task ret = TaskMapper.update(foundTask.get(),updateDto);
+    TaskEntity updatedEntity = TaskMapper.updateEntity(taskToUpdate.get(), todo);
+    updatedEntity = taskRepo.save(updatedEntity);
+
+    Task ret = TaskMapper.toDto(updatedEntity);
     return ret;
   }
 
   public Task delete(Long id) {
     Task ret = null;
-    Optional<Task> foundTask = storedTasks.stream().filter(t -> t.getTaskId().equals(id)).findFirst();
-
-    if (foundTask.isPresent()) {
-      storedTasks.remove(foundTask.get());
-      ret = foundTask.get();
+    Optional<TaskEntity> taskToDelete = taskRepo.findByTaskId(id);
+    if (taskToDelete.isPresent()) {
+      taskRepo.delete(taskToDelete.get());
+      ret = TaskMapper.toDto(taskToDelete.get());
     } else {
       throw new IllegalArgumentException();
     }
     return ret;
   }
 
+  public List<Tag> findTags(Boolean active, String name, String pattern) {
+    Pattern compiledPattern = Pattern.compile(pattern == null ? ".*" : pattern, Pattern.CASE_INSENSITIVE);
+    ;
+
+    List<TagEntity> entities = tagRepo.findAll();
+
+    List<Tag> ret = entities.stream().filter(e -> active != null ? e.isActive() == active : true)
+        .filter(e -> name != null ? e.getName().equalsIgnoreCase(name) : true)
+        .filter(e -> pattern != null ? compiledPattern.matcher(e.getName()).matches() : true).map(TagMapper::toDto)
+        .collect(Collectors.toList());
+
+    return ret;
+  }
 
   public Tag findTagById(Long id) {
-    Optional<Tag> storedTag = storedTags.stream().filter(t -> t.getTagId().equals(id)).findFirst();
-    return storedTag.orElse(null);
+    Optional<TagEntity> tag = tagRepo.findByTagId(id);
+    if (tag.isPresent()) {
+      return TagMapper.toDto(tag.get());
+    } else {
+      throw new EntityNotFoundException();
+    }
   }
 
-  private Optional<Tag> findTagByName(String tagName) {
-    return storedTags.stream().filter(t -> t.getName().equals(tagName)).findFirst();
-  }
-
-  public Tag createTag(String tagName) {
-    Optional<Tag> existing = storedTags.stream().filter(t -> t.getName().equals(tagName)).findFirst();
+  public Tag createTag(String tag) {
+    Optional<TagEntity> existing = tagRepo.findByName(tag);
     if (existing.isPresent()) {
       throw new IllegalArgumentException("Tag already exists");
     }
-    Tag createdTag = TagMapper.toNew(tagName);
-    OptionalLong lastId = storedTags.stream().mapToLong(Tag::getTagId).max();
-    createdTag.setTagId(lastId.orElse(0) + 1);
-
-    storedTags.add(createdTag);
-
-    return createdTag;
+    TagEntity entity = TagMapper.toNewEntity(tag);
+    entity = tagRepo.save(entity);
+    entity.setTagId(entity.getId());
+    entity = tagRepo.save(entity);
+    return TagMapper.toDto(entity);
   }
 
   public Tag deleteTag(Long id) {
     Tag ret = null;
-    Optional<Tag> storedTag = storedTags.stream().filter(t -> t.getTagId().equals(id)).findFirst();
-    if (storedTag.isPresent()) {
-      storedTags.remove(storedTag);
-      ret = storedTag.get();
+    Optional<TagEntity> tagToDelete = tagRepo.findByTagId(id);
+    if (tagToDelete.isPresent()) {
+      TagEntity entity = tagToDelete.get();
+      entity.setActive(false);
+      tagRepo.save(entity);
+      ret = TagMapper.toDto(entity);
     } else {
       throw new IllegalArgumentException();
     }

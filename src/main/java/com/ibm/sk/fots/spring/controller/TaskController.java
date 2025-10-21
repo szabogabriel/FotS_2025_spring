@@ -4,6 +4,7 @@ import com.ibm.sk.fots.spring.dto.Task;
 import com.ibm.sk.fots.spring.dto.TaskCreate;
 import com.ibm.sk.fots.spring.dto.TaskUpdate;
 import com.ibm.sk.fots.spring.service.ControllerService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,22 +21,20 @@ public class TaskController {
 
   @GetMapping("/{id}")
   public Task find(@PathVariable Long id) {
-    Task ret = service.find(id);
-    if (ret == null) {
+    try {
+      return service.findTask(id);
+    } catch (Exception e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    return ret;
   }
 
   @PostMapping
-  public ResponseEntity<Task> add(@RequestBody TaskCreate createTask) {
-
-    Task createdTaks = service.add(createTask);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdTaks);
+  public Task add(@Valid @RequestBody TaskCreate todo) {
+    return service.add(todo);
   }
 
   @PatchMapping("/{id}")
-  public Task update(@PathVariable Long id, @RequestBody TaskUpdate todo) {
+  public Task update(@PathVariable Long id, @Valid @RequestBody TaskUpdate todo) {
     Task ret = null;
     try {
       ret = service.update(id, todo);
