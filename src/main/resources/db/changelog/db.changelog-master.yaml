@@ -85,12 +85,12 @@ databaseChangeLog:
         - addForeignKeyConstraint:
             baseTableName: task_tag
             baseColumnNames: task_id
-            referencedTableName: task_entity
+            referencedTableName: task
             referencedColumnNames: id
-            constraintName: fk_task_tag_task
+            constraintName: fk_task_tag_task_id
         - addForeignKeyConstraint:
             baseTableName: task_tag
             baseColumnNames: tag_id
-            referencedTableName: tag_entity
+            referencedTableName: tag
             referencedColumnNames: id
-            constraintName: fk_task_tag_tag
+            constraintName: fk_task_tag_tag_id
