@@ -13,6 +13,7 @@ import com.ibm.sk.fots.spring.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -49,6 +50,7 @@ public class ControllerService {
     return new ArrayList<>();
   }
 
+  @Transactional
   public Task add(TaskCreate todo) {
     TaskEntity entity = TaskMapper.toNewEntity(todo);
     if (todo.getTags() != null) {
