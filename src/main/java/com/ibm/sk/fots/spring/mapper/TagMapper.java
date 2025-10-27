@@ -2,10 +2,12 @@ package com.ibm.sk.fots.spring.mapper;
 
 import com.ibm.sk.fots.spring.dto.Tag;
 import com.ibm.sk.fots.spring.entity.TagEntity;
+import lombok.experimental.UtilityClass;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class TagMapper {
 
   public static Tag toDto(TagEntity entity) {
@@ -25,7 +27,7 @@ public class TagMapper {
       return null;
     }
     return entities.stream()
-        .map(TagMapper::toDto)
+        .map(TaskTagMapper.INSTANCE::toDto)
         .collect(Collectors.toList());
   }
 
