@@ -5,12 +5,14 @@ import com.ibm.sk.fots.spring.dto.Task;
 import com.ibm.sk.fots.spring.dto.TaskCreate;
 import com.ibm.sk.fots.spring.dto.TaskUpdate;
 import com.ibm.sk.fots.spring.entity.TaskEntity;
+import lombok.experimental.UtilityClass;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@UtilityClass
 public class TaskMapper {
 
   public static Task toDto(TaskEntity entity) {
