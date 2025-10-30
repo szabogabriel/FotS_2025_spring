@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,6 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long>, TaskRep
   @Query("SELECT t FROM TaskEntity t WHERE t.completed = :completed")
   List<TaskEntity> findByCompleted(boolean completed);
 
-  List<TaskEntity> findByDueDateBefore(LocalDate dueDate);
+  List<TaskEntity> findByDueDateBefore(LocalDateTime dueDate);
 
 }

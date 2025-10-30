@@ -45,7 +45,7 @@ public class ControllerService {
     } else if (done != null) {
       return TaskTagMapper.INSTANCE.toDtoListTask(taskRepo.findByCompleted(done));
     } else if (dueBefore != null) {
-      return TaskTagMapper.INSTANCE.toDtoListTask(taskRepo.findByDueDateBefore(dueBefore));
+      return TaskTagMapper.INSTANCE.toDtoListTask(taskRepo.findByDueDateBefore(dueBefore.atStartOfDay()));
     }
 
     return new ArrayList<>();
