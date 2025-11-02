@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -154,5 +155,10 @@ public class ControllerService {
       throw new IllegalArgumentException();
     }
     return ret;
+  }
+
+  public List<Task> findAllTasks() {
+    List<TaskEntity> tasks = taskRepo.findAll();
+    return TaskTagMapper.INSTANCE.toDtoListTask(tasks);
   }
 }
