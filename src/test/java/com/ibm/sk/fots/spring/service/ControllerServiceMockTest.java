@@ -10,7 +10,6 @@ import java.util.Optional;
 import jakarta.persistence.EntityNotFoundException;
 import com.ibm.sk.fots.spring.dto.PriorityEnum;
 import com.ibm.sk.fots.spring.entity.TaskEntity;
-import com.ibm.sk.fots.spring.repository.TagRepository;
 import com.ibm.sk.fots.spring.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,6 @@ public class ControllerServiceMockTest {
 
   @Autowired
   private ControllerService controllerService;
-
-  @MockitoBean
-  private TagRepository tagRepo;
 
   @MockitoBean
   private TaskRepository taskRepo;
@@ -58,7 +54,7 @@ public class ControllerServiceMockTest {
     Long resultId = controllerService.findTask(testId).getTaskId();
 
     //  Asserting the result
-    assertEquals(resultId, testId);
+    assertEquals(testId, resultId);
   }
 
   @Test
