@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 // boolean testCompleted = false;
 // PriorityEnum testPriority = PriorityEnum.MEDIUM;
 
-@Configuration
+
 public class TestRepositoryConfig {
 
   @Bean
